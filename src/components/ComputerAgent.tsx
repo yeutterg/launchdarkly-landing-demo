@@ -1,17 +1,7 @@
 import React from 'react';
-import { useFlags, useLDClient } from 'launchdarkly-react-client-sdk';
 import { Monitor, Terminal, Globe, Database } from 'lucide-react';
 
 export default function ComputerAgent() {
-  const { computerAgentEnabled } = useFlags();
-  const ldClient = useLDClient();
-  const isDevelopment = import.meta.env.DEV;
-  
-  // Show component in development or when flag is enabled
-  const showComponent = isDevelopment || (ldClient && computerAgentEnabled);
-  
-  if (!showComponent) return null;
-
   return (
     <div className="bg-white py-24 sm:py-32">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
@@ -65,7 +55,7 @@ export default function ComputerAgent() {
             </div>
           </div>
         </div>
-      </div>
+      </div> 
     </div>
   );
 }
