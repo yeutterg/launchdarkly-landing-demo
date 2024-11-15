@@ -1,18 +1,35 @@
 import React, { useEffect } from 'react';
-import { withLDProvider, useFlags } from 'launchdarkly-react-client-sdk';
+import { withLDProvider, useFlags, useLDClient } from 'launchdarkly-react-client-sdk';
 import Header from './components/Header';
 import Hero from './components/Hero';
 import Features from './components/Features';
 import ComputerAgent from './components/ComputerAgent';
 
+const clientSideID = import.meta.env.VITE_LAUNCHDARKLY_CLIENT_ID;
+
+// Context attributes for LaunchDarkly
+const context = {
+  kind: 'user',
+  key: '1234567890', 
+  name: 'Jane Doe',
+  email: 'jane.doe@example.com',
+  device: 'mac',
+  country: 'DE'
+};
+
 function App() {
   const flags = useFlags(); // Access all feature flags
+  const client = useLDClient(); // Get the LaunchDarkly client instance
 
-  // Log all flags and the specific flag state whenever flags update
   useEffect(() => {
-    console.log('LaunchDarkly Flags:', flags);
-    console.log('computerAgentEnabled flag state:', flags.computerAgentEnabled);
-  }, [flags]);
+    if (client) { // Ensure the client is available
+      console.log('LaunchDarkly Flags:', flags);
+      console.log('computerAgentEnabled flag state:', flags.computerAgentEnabled);
+      
+      // Track an event on page load
+      client.track('page_load', { page: 'App' }); // Track the page load event
+    }
+  }, [flags, client]);
 
   return (
     <>
@@ -26,20 +43,12 @@ function App() {
   );
 }
 
-const clientSideID = import.meta.env.VITE_LAUNCHDARKLY_CLIENT_ID;
-
-const user = {
-  key: 'unique-user-key', // Ensure this key matches the targeting rules in LaunchDarkly
-  name: 'John Doe',
-  email: 'john.doe@example.com'
-};
-
-console.log('LaunchDarkly clientSideID:', clientSideID);
-
 export default withLDProvider({
   clientSideID: clientSideID || '',
-  user: user,
+  context: context,
   options: {
-    debug: true, // Enables verbose logging for debugging purposes
+    sendEvents: true, // Ensure events are sent
+    allAttributesPrivate: false,
+    privateAttributes: []
   }
 })(App);
